@@ -1,6 +1,6 @@
-import numpy as np
-
 # From the DGN implementation at https://github.com/Saro00/DGN
+
+import numpy as np
 
 def scale_identity(h, D, avg_d, device):
     return h

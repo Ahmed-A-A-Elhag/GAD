@@ -31,8 +31,6 @@ class MLP(nn.Module):
             )
             
             
-
-            
             # non linearity after all layers except the last one
             if(i+2 != len(self.model_dims)):
                 

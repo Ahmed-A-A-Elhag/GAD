@@ -90,7 +90,7 @@ class aggregate_min(MessagePassing):
 
 class aggregate_dir_smooth(MessagePassing):
     def __init__(self, edge_fts, hid_dim, device):
-        super().__init__(aggr='add')  # "Add" aggregation (Step 5).
+        super().__init__(aggr='add')  
         self.edge_fts = edge_fts
         self.device = device
         if self.edge_fts:
@@ -155,3 +155,4 @@ class aggregate_dir_der(MessagePassing):
  
         return self.linear(out)
  
+AGGREGATORS = {'mean': aggregate_mean, 'max': aggregate_max, 'min': aggregate_min, 'dir_der':aggregate_dir_der, 'dir_smooth':aggregate_dir_smooth}

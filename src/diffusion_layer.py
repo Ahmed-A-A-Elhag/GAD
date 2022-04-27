@@ -1,5 +1,6 @@
 
-
+import torch
+import torch.nn as nn
 
 def get_mask(k, batch_num_nodes, num_nodes, device):
     mask = torch.zeros(num_nodes, k*len(batch_num_nodes)).to(device)

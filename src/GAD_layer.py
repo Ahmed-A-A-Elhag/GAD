@@ -2,10 +2,10 @@
 import torch
 import torch.nn as nn
 
-from .aggregators import AGGREGATORS
-from .mlp import MLP
-from .scalers import SCALERS
-from .dgn_layer import DGN_layer_Simple, DGN_Tower, DGN_layer_Tower
+from aggregators import AGGREGATORS
+from mlp import MLP
+from scalers import SCALERS
+from dgn_layer import DGN_layer_Simple, DGN_Tower, DGN_layer_Tower
 
 class GAD_layer(nn.Module):
     def __init__(self, hid_dim, graph_norm, batch_norm, dropout, aggregators, scalers, edge_fts, avg_d, D, device, towers, type_net, residual, use_diffusion, diffusion_method, k):

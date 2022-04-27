@@ -1,13 +1,16 @@
 import torch
 from torch_geometric.datasets import ZINC
+from torch_geometric.data import DataLoader
+import os
+import sys
 
 import argparse
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))  # add the path to the DiffusionNet src
 
-from .avg_d import avg_d
-from .evaluate_network import evaluate_network
-from .preprocessing_dataset import preprocessing_dataset
-from .train_epoch import train_epoch
+from preprocessing import preprocessing_dataset, average_node_degree
+from evaluate import train_epoch, evaluate_network
+from GAD import GAD
 
 def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
 
@@ -74,16 +77,18 @@ def main():
     dataset_train = ZINC(root='/', subset=True)
     dataset_val = ZINC(root='/', subset=True, split='val')
     dataset_test = ZINC(root='/', subset=True, split='test')
-    
-    dataset_train = preprocessing_dataset(dataset_train)
-    dataset_val = preprocessing_dataset(dataset_val)
-    dataset_test = preprocessing_dataset(dataset_test)
+    print("bn")
+
+    D, avg_d = average_node_degree(dataset_train)
+    dataset_train = preprocessing_dataset(dataset_train, 20)
+    # dataset_val = preprocessing_dataset(dataset_val)
+    # dataset_test = preprocessing_dataset(dataset_test)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     train_loader = DataLoader(dataset = dataset_train, batch_size=16,shuffle=True) 
-    val_loader = DataLoader(dataset = dataset_val, batch_size=16, shuffle=False)
-    test_loader = DataLoader(dataset =  dataset_test, batch_size=16, shuffle=False)
+    # val_loader = DataLoader(dataset = dataset_val, batch_size=16, shuffle=False)
+    # test_loader = DataLoader(dataset =  dataset_test, batch_size=16, shuffle=False)
     
     model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = 65, graph_norm = True, batch_norm = True, dropout = 0,
                       readout = 'mean', aggregators = 'mean dir_der max min', scalers = 'identity amplification attenuation', 

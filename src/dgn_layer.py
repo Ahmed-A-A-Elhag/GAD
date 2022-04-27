@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from .aggregators import AGGREGATORS
 from .mlp import MLP
-from src.scalers import SCALERS
+from .scalers import SCALERS
 
 
 ########## DGN Layer Simple ############# 

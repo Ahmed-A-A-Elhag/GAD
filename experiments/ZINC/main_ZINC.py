@@ -15,7 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))
 
 from preprocessing import preprocessing_dataset, average_node_degree
 from evaluate import train_epoch, evaluate_network
-from GAD import GAD
+from gad import GAD
 
 def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, min_lr):
 

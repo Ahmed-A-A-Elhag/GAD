@@ -1,5 +1,5 @@
 
-from torch_geometric.utils import to_dense_adj, get_laplacian
+from torch_geometric.utils import to_dense_adj, get_laplacian, dense_to_sparse
 from torch_geometric.data import Data
 
 
@@ -8,7 +8,7 @@ import torch.nn as nn
 import numpy as np
 import scipy
 
-def preprocessing_dataset(dataset):
+def preprocessing_dataset(dataset, num_of_eigenvectors):
 
     # Calculate and store the vector field F 
 
@@ -120,6 +120,10 @@ def preprocessing_dataset(dataset):
     return data_list
 
 
+
+
+# Calculate the average node degree in the training data
+
 def avg_d(dataset):
   
   D = []
@@ -140,3 +144,4 @@ def avg_d(dataset):
 
 
   return D, avg_d
+

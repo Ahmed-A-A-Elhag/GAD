@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 
+from torch_scatter import scatter
+
 from aggregators import AGGREGATORS
 from mlp import MLP
 from scalers import SCALERS

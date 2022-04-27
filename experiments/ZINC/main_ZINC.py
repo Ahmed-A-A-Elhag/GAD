@@ -123,6 +123,7 @@ def main():
                diffusion_method = args.diffusion_method, k = args.k, n_layers = args.n_layers)
     
 
+    model = model.to(device)
     
     optimizer = opt.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     

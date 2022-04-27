@@ -6,7 +6,7 @@ import sys
 
 import argparse
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))  # add the path to the DiffusionNet src
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/"))  
 
 from preprocessing import preprocessing_dataset, average_node_degree
 from evaluate import train_epoch, evaluate_network

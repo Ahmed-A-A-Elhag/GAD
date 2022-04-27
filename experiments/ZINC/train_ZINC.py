@@ -1,7 +1,7 @@
 from .avg_d import avg_d
 from .evaluate_network import evaluate_network
 from .preprocessing_dataset import preprocessing_dataset
-from .train_epoch improt train_epoch
+from .train_epoch import train_epoch
 
 def Train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
 

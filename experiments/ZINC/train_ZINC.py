@@ -38,3 +38,31 @@ def Train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
         print("epoch_idx", epoch)
         print("epoch_train_MAEs", epoch_train_mae)
         print("epoch_val_MAEs", epoch_val_mae)
+        
+        
+def main():
+    
+    parser.add_argument('--graph_norm', help="Enter true for graph_norm", type = bool ,default=True)
+    parser.add_argument('--batch_norm', help="Enter true for batch_norm", type = bool ,default=True)
+    parser.add_argument('--L', help="Enter the number of layers", type = int)
+    parser.add_argument('--dropout', help="Enter the rate of the dropout", type = int, default=0)
+    parser.add_argument('--readout', help="Enter the readout agggregator", type = str, default='mean')
+    parser.add_argument('--aggregators', help="Enter the aggregators", type = str)
+    parser.add_argument('--scalers', help="Enter the scalers", type = str)
+    parser.add_argument('--edge_fts', help="Enter true if you want to use edge_fts", type = bool)
+    parser.add_argument('--type_net', help="Enter the type_net", type = str)
+    parser.add_argument('--towers', help="Enter the num of towers", type = int)
+    parser.add_argument('--residual', help="Enter the residual", type = bool)
+    parser.add_argument('--use_diffusion', help="Enter the use_diffusion", type = bool)
+    parser.add_argument('--diffusion_method', help="Enter the diffusion_method", type = str)
+    parser.add_argument('--k', help="Enter the num k", type = int)
+    
+    args = parser.parse_args()
+    
+    
+    
+main()
+    
+
+
+

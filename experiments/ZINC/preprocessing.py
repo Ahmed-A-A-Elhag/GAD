@@ -124,7 +124,7 @@ def preprocessing_dataset(dataset, num_of_eigenvectors):
 
 # Calculate the average node degree in the training data
 
-def avg_d(dataset):
+def average_node_degree(dataset):
   
   D = []
   

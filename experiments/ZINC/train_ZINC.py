@@ -1,12 +1,15 @@
 import torch
 from torch_geometric.datasets import ZINC
 
+import argparse
+
+
 from .avg_d import avg_d
 from .evaluate_network import evaluate_network
 from .preprocessing_dataset import preprocessing_dataset
 from .train_epoch import train_epoch
 
-def Train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
+def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
 
     loss_fn = nn.L1Loss()
 
@@ -48,6 +51,8 @@ def Train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
         
         
 def main():
+
+    parser = argparse.ArgumentParser()
     
     parser.add_argument('--graph_norm', help="Enter true for graph_norm", type = bool ,default=True)
     parser.add_argument('--batch_norm', help="Enter true for batch_norm", type = bool ,default=True)
@@ -80,15 +85,15 @@ def main():
     val_loader = DataLoader(dataset = dataset_val, batch_size=16, shuffle=False)
     test_loader = DataLoader(dataset =  dataset_test, batch_size=16, shuffle=False)
     
-    model = Diffusion_DGN(num_atom_type = 28, num_bond_type = 4, hid_dim = 65, graph_norm = True, batch_norm = True, dropout = 0,
+    model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = 65, graph_norm = True, batch_norm = True, dropout = 0,
                       readout = 'mean', aggregators = 'mean dir_der max min', scalers = 'identity amplification attenuation', 
                       edge_fts = True, avg_d = avg_d, D = D, device = device, towers=5, type_net = 'tower', 
-                      residual = True, use_diffusion = True, diffusion_method = 'implicit',k = 30, n_layers = 4)
+                      residual = True, use_diffusion = True, diffusion_method = 'spectral',k = 30, n_layers = 4)
     
     lr= 1e-3
     optimizer = opt.Adam(model.parameters(), lr=lr, weight_decay=3e-6)
     
-    Train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = 300)
+    train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = 300)
     
     
 main()

@@ -1,4 +1,6 @@
 
+import torch
+from torch_geometric.utils import to_dense_adj
 
 # Calculate the average node degree in the training data
 

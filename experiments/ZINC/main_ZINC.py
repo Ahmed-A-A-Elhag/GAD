@@ -17,11 +17,9 @@ from preprocessing import preprocessing_dataset, average_node_degree
 from evaluate import train_epoch, evaluate_network
 from GAD import GAD
 
-def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
+def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, min_lr):
 
     loss_fn = nn.L1Loss()
-
-    # torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, threshold=0.0001, threshold_mode='rel', cooldown=0, min_lr=0, eps=1e-08, verbose=False)
 
     scheduler = opt.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
                                                      factor=0.5, 
@@ -33,10 +31,12 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
     
     Best_val_mae = 10
 
+    print("start training")
+
     for epoch in range(num_epochs):
         
-        if optimizer.param_groups[0]['lr'] < 1e-5:
-            print("\n!! LR EQUAL TO MIN LR SET.")
+        if optimizer.param_groups[0]['lr'] < min_lr:
+            print("lr equal to min_lr: exist")
             break
         
         epoch_train_mae, optimizer = train_epoch(model ,train_loader, optimizer, device, loss_fn)
@@ -54,59 +54,83 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs):
 
         print("")
         print("epoch_idx", epoch)
-        print("epoch_train_MAEs", epoch_train_mae)
-        print("epoch_val_MAEs", epoch_val_mae)
+        print("epoch_train_MAE", epoch_train_mae)
+        print("epoch_val_MAE", epoch_val_mae)
         
-        
+    print("finish training")
+
 def main():
 
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--graph_norm', help="Enter true for graph_norm", type = bool ,default=True)
-    parser.add_argument('--batch_norm', help="Enter true for batch_norm", type = bool ,default=True)
-    parser.add_argument('--L', help="Enter the number of layers", type = int)
-    parser.add_argument('--dropout', help="Enter the rate of the dropout", type = int, default=0)
+
+    parser.add_argument('--n_layers', help="Enter the number of GAD layers", type = int)
+    parser.add_argument('--hid_dim', help="Enter the hidden dimensions", type = int)
+    parser.add_argument('--dropout', help="Enter the value of the dropout", type = int, default=0)
     parser.add_argument('--readout', help="Enter the readout agggregator", type = str, default='mean')
+
+    
+    parser.add_argument('--use_diffusion', help="Enter the use_diffusion", type = bool)
+    parser.add_argument('--diffusion_method', help="Enter the diffusion layer solving scheme ", type = str)
+    parser.add_argument('--k', help="Enter the num of eigenvector for spectral scheme", type = int)
+
     parser.add_argument('--aggregators', help="Enter the aggregators", type = str)
     parser.add_argument('--scalers', help="Enter the scalers", type = str)
-    parser.add_argument('--edge_fts', help="Enter true if you want to use edge_fts", type = bool)
-    parser.add_argument('--type_net', help="Enter the type_net", type = str)
-    parser.add_argument('--towers', help="Enter the num of towers", type = int)
-    parser.add_argument('--residual', help="Enter the residual", type = bool)
-    parser.add_argument('--use_diffusion', help="Enter the use_diffusion", type = bool)
-    parser.add_argument('--diffusion_method', help="Enter the diffusion_method", type = str)
-    parser.add_argument('--k', help="Enter the num k", type = int)
+    
+    parser.add_argument('--use_edge_fts', help="Enter true if you want to use the edge_fts", type = bool)
+    parser.add_argument('--use_graph_norm', help="Enter true if you want to use graph_norm", type = bool ,default=True)
+    parser.add_argument('--use_batch_norm', help="Enter true if you want to use batch_norm", type = bool ,default=True)
+    parser.add_argument('--use_residual', help="Enter true if you want to use residual connection", type = bool)
+
+    parser.add_argument('--type_net', help="Enter the type_net for DGN layer", type = str)
+    parser.add_argument('--towers', help="Enter the num of towers for DGN_tower")
+
+
+
+    
+    parser.add_argument('--num_epochs', help="Enter the num of epochs", type = int)
+    parser.add_argument('--batch_size', help="Enter the batch size", type = int)
+    parser.add_argument('--lr', help="Enter the learning rate", type = float)
+    parser.add_argument('--weight_decay', help="Enter the weight_decay", type = float)
+    parser.add_argument('--min_lr', help="Enter the minimum lr", type = float)
     
     args = parser.parse_args()
     
+    print("downloading ZINC dataset")
     dataset_train = ZINC(root='/', subset=True)
     dataset_val = ZINC(root='/', subset=True, split='val')
     dataset_test = ZINC(root='/', subset=True, split='test')
-    print("bn")
+    
+    print("data preprocessing: calculate and store the vector field F, etc.")
 
     D, avg_d = average_node_degree(dataset_train)
-    dataset_train = preprocessing_dataset(dataset_train, 30)
-    dataset_val = preprocessing_dataset(dataset_val, 30)
-    dataset_test = preprocessing_dataset(dataset_test, 30)
+    dataset_train = preprocessing_dataset(dataset_train, args.k)
+    dataset_val = preprocessing_dataset(dataset_val, args.k)
+    dataset_test = preprocessing_dataset(dataset_test, args.k)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    train_loader = DataLoader(dataset = dataset_train, batch_size=16,shuffle=True) 
-    val_loader = DataLoader(dataset = dataset_val, batch_size=16, shuffle=False)
-    test_loader = DataLoader(dataset =  dataset_test, batch_size=16, shuffle=False)
+    train_loader = DataLoader(dataset = dataset_train, batch_size=args.batch_size, shuffle=True) 
+    val_loader = DataLoader(dataset = dataset_val, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(dataset =  dataset_test, batch_size=args.batch_size, shuffle=False)
+
+    print("create GAD model")
     
-    model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = 65, graph_norm = True, batch_norm = True, dropout = 0,
-                      readout = 'mean', aggregators = 'mean dir_der max min', scalers = 'identity amplification attenuation', 
-                      edge_fts = True, avg_d = avg_d, D = D, device = device, towers=5, type_net = 'tower', 
-                      residual = True, use_diffusion = True, diffusion_method = 'spectral',k = 30, n_layers = 4)
+    model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = args.hid_dim, graph_norm = args.use_graph_norm, 
+               batch_norm = args.use_batch_norm, dropout = args.dropout, readout = args.readout, aggregators = args.aggregators,
+               scalers = args.scalers, edge_fts = args.use_edge_fts, avg_d = avg_d, D = D, device = device, towers= args.towers,
+                type_net = args.type_net, residual = args.use_residual, use_diffusion = args.use_diffusion, 
+                diffusion_method = args.diffusion_method, k = args.k, n_layers = args.n_layers)
     
-    lr= 1e-3
 
     
-    optimizer = opt.Adam(model.parameters(), lr=lr, weight_decay=3e-6)
+    optimizer = opt.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
-    train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = 300)
+    train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = args.num_epochs, min_lr = args.min_lr)
     
     
 main()
     
+
+
+

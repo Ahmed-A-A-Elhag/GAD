@@ -31,7 +31,7 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, m
     
     Best_val_mae = 10
 
-    print("start training")
+    print("Start training")
 
     for epoch in range(num_epochs):
         
@@ -57,7 +57,7 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, m
         print("epoch_train_MAE", epoch_train_mae)
         print("epoch_val_MAE", epoch_val_mae)
         
-    print("finish training")
+    print("Finish training")
 
 def main():
 
@@ -76,14 +76,14 @@ def main():
 
     parser.add_argument('--aggregators', help="Enter the aggregators", type = str)
     parser.add_argument('--scalers', help="Enter the scalers", type = str)
-    
+
     parser.add_argument('--use_edge_fts', help="Enter true if you want to use the edge_fts", type = bool)
     parser.add_argument('--use_graph_norm', help="Enter true if you want to use graph_norm", type = bool ,default=True)
     parser.add_argument('--use_batch_norm', help="Enter true if you want to use batch_norm", type = bool ,default=True)
     parser.add_argument('--use_residual', help="Enter true if you want to use residual connection", type = bool)
 
     parser.add_argument('--type_net', help="Enter the type_net for DGN layer", type = str)
-    parser.add_argument('--towers', help="Enter the num of towers for DGN_tower")
+    parser.add_argument('--towers', help="Enter the num of towers for DGN_tower", type=int)
 
 
 
@@ -96,7 +96,7 @@ def main():
     
     args = parser.parse_args()
     
-    print("downloading ZINC dataset")
+    print("downloading the dataset (ZINC)")
     dataset_train = ZINC(root='/', subset=True)
     dataset_val = ZINC(root='/', subset=True, split='val')
     dataset_test = ZINC(root='/', subset=True, split='test')
@@ -119,8 +119,8 @@ def main():
     model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = args.hid_dim, graph_norm = args.use_graph_norm, 
                batch_norm = args.use_batch_norm, dropout = args.dropout, readout = args.readout, aggregators = args.aggregators,
                scalers = args.scalers, edge_fts = args.use_edge_fts, avg_d = avg_d, D = D, device = device, towers= args.towers,
-                type_net = args.type_net, residual = args.use_residual, use_diffusion = args.use_diffusion, 
-                diffusion_method = args.diffusion_method, k = args.k, n_layers = args.n_layers)
+               type_net = args.type_net, residual = args.use_residual, use_diffusion = args.use_diffusion, 
+               diffusion_method = args.diffusion_method, k = args.k, n_layers = args.n_layers)
     
 
     
@@ -128,9 +128,18 @@ def main():
     
     train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = args.num_epochs, min_lr = args.min_lr)
     
-    
+    print("Uploading the best model")
+
+    model_ = torch.load('model.pth')
+
+    test_mae = evaluate_network(model_, test_loader, device)
+    val_mae = evaluate_network(model_, val_loader, device)
+    train_mae = evaluate_network(model_, train_loader, device)
+
+    print("")
+    print("Best Train MAE: {:.4f}".format(train_mae))
+    print("Best Val MAE: {:.4f}".format(val_mae))
+    print("Best Test MAE: {:.4f}".format(test_mae))
+
 main()
-    
-
-
-
+   

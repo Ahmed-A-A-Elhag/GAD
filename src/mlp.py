@@ -9,11 +9,10 @@ class MLP(nn.Module):
         """
         super().__init__()
 
-        # list contains all the model dimensions 
         self.model_dims = model_dims 
-        # the activation function betwen layers
+
         self.activation = nn.ReLU() 
-        # MLP model
+
         self.layers = nn.Sequential() 
 
         for i in range(len(model_dims)- 1):
@@ -34,7 +33,6 @@ class MLP(nn.Module):
             )
             
             
-            # non linearity after all layers except the last one
             if(i+2 != len(self.model_dims)):
                 
                     

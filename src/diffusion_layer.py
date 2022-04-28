@@ -51,9 +51,9 @@ class Diffusion_layer(nn.Module):
 
             k_eig_vec_ = k_eig_vec_ * mask
 
-            basisT = k_eig_vec_.transpose(-2, -1)
+            basis_T = k_eig_vec_.transpose(-2, -1)
 
-            x_spec = torch.matmul(basisT, node_fts * node_deg_vec)
+            x_spec = torch.matmul(basis_T, node_fts * node_deg_vec)
 
             time = self.diffusion_time
 
@@ -67,7 +67,6 @@ class Diffusion_layer(nn.Module):
         elif self.method == 'implicit':
                 
 
-
             mat_ = lap_mat.unsqueeze(0).expand( self.width, num_nodes, num_nodes).clone()
 
             mat_ *= self.diffusion_time.unsqueeze(-1).unsqueeze(-1)
@@ -77,14 +76,14 @@ class Diffusion_layer(nn.Module):
 
             cholesky_factors = torch.linalg.cholesky(mat_)
 
-            rhs = node_fts * node_deg_vec
+            cholesky_decomp = node_fts * node_deg_vec
 
-            rhsT = torch.transpose(rhs, 0, 1).unsqueeze(-1)
+            cholesky_decomp_T = torch.transpose(cholesky_decomp, 0, 1).unsqueeze(-1)
 
 
-            sols = torch.cholesky_solve(rhsT, cholesky_factors)
+            final_sol = torch.cholesky_solve(cholesky_decomp_T, cholesky_factors)
 
-            x_diffuse = torch.transpose(sols.squeeze(-1), 0, 1)
+            x_diffuse = torch.transpose(final_sol.squeeze(-1), 0, 1)
 
         
 

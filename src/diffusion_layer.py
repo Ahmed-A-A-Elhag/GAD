@@ -70,15 +70,11 @@ class Diffusion_layer(nn.Module):
 
             mat_ *= self.diffusion_time.unsqueeze(-1).unsqueeze(-1)
 
-            #  torch.diag(mass[:, 0])
-
             mat_ += node_deg_mat.unsqueeze(0)
-            # mat_ =  node_deg_mat.unsqueeze(0) - mat_
 
 
             cholesky_factors = torch.linalg.cholesky(mat_)
 
-            # Solve the system
             rhs = node_fts * node_deg_vec
 
             rhsT = torch.transpose(rhs, 0, 1).unsqueeze(-1)

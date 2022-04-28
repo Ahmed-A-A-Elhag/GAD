@@ -1,4 +1,4 @@
-# From the DGN implementation at https://github.com/Saro00/DGN
+# From the DGN implementation 
 
 import numpy as np
 

@@ -4,4 +4,4 @@ The implementation of the paper ***Graph Anisotropic Diffusion*** using PyTorch 
 
 ## Description 
 This repository is structured in the following manner:
-* ***src*** contains the script to create Graph Anisotropic Diffusion (GAD) model
+* ***src*** contains the script to create Graph Anisotropic Diffusion (GAD) model ( diffusion layer, aggregation matrices, GAD_layer, and full GAD architecture).

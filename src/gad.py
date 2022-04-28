@@ -1,4 +1,4 @@
-############ Diffusion DGN net: 4 layers #####################
+############ GAD model #####################
 import torch
 import torch.nn as nn
 
@@ -59,12 +59,9 @@ class GAD(nn.Module):
 
     def forward(self, node_fts, edge_fts, edge_index, F_norm_edge, F_dig, node_deg_vec, node_deg_mat, lap_mat, k_eig_val, k_eig_vec, num_nodes, norm_n, batch_idx):
       
-        # print("node_fts", node_fts)
         node_fts = self.embedding_node_fts(node_fts)
         if self.edge_fts:
             edge_fts = self.embedding_edge_fts(edge_fts)
-
-
 
         node_fts = self.layer_first(node_fts)
 
@@ -78,8 +75,8 @@ class GAD(nn.Module):
 
         output = scatter(output, batch_idx, dim=0, reduce= self.readout)
 
-
         output = self.readout_MLP(output)
+        
         output = output.squeeze(-1)
 
 

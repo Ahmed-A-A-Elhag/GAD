@@ -1,4 +1,4 @@
-############ Diffusion DGN net: 4 layers #####################
+############ GAD layer #####################
 import torch
 import torch.nn as nn
 
@@ -12,7 +12,6 @@ class GAD_layer(nn.Module):
     def __init__(self, hid_dim, graph_norm, batch_norm, dropout, aggregators, scalers, edge_fts, avg_d, D, device, towers, type_net, residual, use_diffusion, diffusion_method, k):
         super().__init__()
         
-        # retrieve the aggregators and scalers functions
         aggregators = [aggr for aggr in aggregators.split()]
         scalers = [SCALERS[scale] for scale in scalers.split()]
         

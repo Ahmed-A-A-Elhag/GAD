@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 
+# Helper function
+
 def get_mask(k, batch_num_nodes, num_nodes, device):
     mask = torch.zeros(num_nodes, k*len(batch_num_nodes)).to(device)
     partial_n = 0

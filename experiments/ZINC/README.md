@@ -1,2 +1,2 @@
 ## Description 
-Here we the scripts to generate our results on ZINC dataset including data preprocessing, etc. We also use training and evaluation functions from "Benchmarking GNNs" by Dwivedi et al. ([code](https://github.com/graphdeeplearning/benchmarking-gnns)).
+Here we the scripts to generate our results on ZINC dataset including data preprocessing, etc. We also used training and evaluation functions from "Benchmarking GNNs" by Dwivedi et al. ([code](https://github.com/graphdeeplearning/benchmarking-gnns)).

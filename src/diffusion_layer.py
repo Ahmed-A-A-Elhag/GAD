@@ -85,7 +85,6 @@ class Diffusion_layer(nn.Module):
 
             x_diffuse = torch.transpose(final_sol.squeeze(-1), 0, 1)
 
-        
 
         x_diffuse = self.relu(x_diffuse)
 

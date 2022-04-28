@@ -45,7 +45,6 @@ class GAD_layer(nn.Module):
         if self.residual:
             output   = node_fts + output
             
-
 #         output = nn.functional.dropout(output, self.dropout, training=self.training)
 
         return output

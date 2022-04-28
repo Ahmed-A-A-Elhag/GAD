@@ -1,5 +1,5 @@
 ## Description 
-Here we include the scripts to generate our results on ZINC dataset, including data preprocessing, etc. 
+Here we include the scripts to generate our results on ZINC dataset, including uploading the data, preprocessing steps, etc. 
 
 ***To run GAD model on ZINC***:
 

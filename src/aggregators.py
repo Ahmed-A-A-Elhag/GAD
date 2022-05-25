@@ -31,8 +31,37 @@ class aggregate_mean(MessagePassing):
         # x_j has shape [num_of_edges, out_channels]
 
         return norm.view(-1, 1) * x_j
-      
-      
+   
+
+
+ ## sum aggregator
+
+class aggregate_sum(MessagePassing):
+    def __init__(self, edge_fts, hid_dim, device):
+        super().__init__(aggr='add') 
+        self.device = device
+
+    def forward(self, node_fts, edge_fts, edge_index, F_norm_edge, F_dig):
+        # node_fts has shape [num_of_nodes, in_channels]
+        # edge_index has shape [2, num_of_edges]
+
+        # Add self-loops to the adjacency matrix.
+        edge_index, _ = add_self_loops(edge_index, num_nodes=node_fts.shape[0])
+        edge_index = edge_index.to(self.device)
+        
+        row, _ = edge_index
+  
+        norm = torch.ones(row.shape[0])
+        norm = norm.to(self.device)
+
+        return self.propagate(edge_index, x=node_fts, norm=norm)
+
+    def message(self, x_j, norm):
+        # x_j has shape [num_of_edges, out_channels]
+
+        return norm.view(-1, 1) * x_j
+    
+  
       
 ## max aggregator
 
@@ -159,4 +188,4 @@ class aggregate_dir_der(MessagePassing):
  
         return self.linear(out)
  
-AGGREGATORS = {'mean': aggregate_mean, 'max': aggregate_max, 'min': aggregate_min, 'dir_der':aggregate_dir_der, 'dir_smooth':aggregate_dir_smooth}
+AGGREGATORS = {'mean': aggregate_mean, 'sum': aggregate_sum, 'max': aggregate_max, 'min': aggregate_min, 'dir_der':aggregate_dir_der, 'dir_smooth':aggregate_dir_smooth}

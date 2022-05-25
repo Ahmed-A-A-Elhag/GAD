@@ -2,7 +2,7 @@ import torch
 import torch.optim as opt
 import torch.nn as nn
 
-from torch_geometric.datasets import ZINC
+from torch_geometric.datasets import QM9
 from torch_geometric.data import DataLoader
 import os
 import sys
@@ -11,13 +11,14 @@ from tqdm import tqdm
 
 import argparse
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../src/")) 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/")) 
 
-from preprocessing import preprocessing_dataset, average_node_degree
-from train_eval_ZINC import train_epoch, evaluate_network
+from ZINC.preprocessing import preprocessing_dataset, average_node_degree
+from train_eval_QM9 import train_epoch, evaluate_network
 from GAD_QM9.gad import GAD
 
-def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, min_lr):
+def train_QM9(model, optimizer, train_loader, val_loader, prop_idx, factor, device, num_epochs, min_lr):
 
     loss_fn = nn.L1Loss()
 
@@ -29,7 +30,7 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, m
 
     epoch_train_MAEs, epoch_val_MAEs = [], []
     
-    Best_val_mae = 10
+    Best_val_mae = 1000
 
     print("Start training")
 
@@ -39,8 +40,8 @@ def train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs, m
             print("lr equal to min_lr: exist")
             break
         
-        epoch_train_mae, optimizer = train_epoch(model ,train_loader, optimizer, device, loss_fn)
-        epoch_val_mae = evaluate_network(model,  val_loader, device)
+        epoch_train_mae, optimizer = train_epoch(model ,train_loader, optimizer, prop_idx, factor, device, loss_fn)
+        epoch_val_mae = evaluate_network(model, val_loader, prop_idx, factor, device)
 
         epoch_train_MAEs.append(epoch_train_mae)
         epoch_val_MAEs.append(epoch_val_mae)
@@ -66,6 +67,8 @@ def main():
 
     parser.add_argument('--n_layers', help="Enter the number of GAD layers", type = int)
     parser.add_argument('--hid_dim', help="Enter the hidden dimensions", type = int)
+    parser.add_argument('--atomic_emb', help="Enter the embedding dimensions of the atomic number", type = int)
+    
     parser.add_argument('--dropout', help="Enter the value of the dropout", type = int, default=0)
     parser.add_argument('--readout', help="Enter the readout agggregator", type = str, default='mean')
 
@@ -85,7 +88,8 @@ def main():
     parser.add_argument('--type_net', help="Enter the type_net for DGN layer", type = str)
     parser.add_argument('--towers', help="Enter the num of towers for DGN_tower", type=int)
 
-
+    parser.add_argument('--prop_idx', help="Enter the QM9 property index", type = int)
+    parser.add_argument('--factor', help="Enter the factor 1000 to convert the QM9 property with Unit eV to meV. Enter 1 for the others properties", type = int)
 
     
     parser.add_argument('--num_epochs', help="Enter the num of epochs", type = int)
@@ -96,10 +100,10 @@ def main():
     
     args = parser.parse_args()
     
-    print("downloading the dataset (ZINC)")
-    dataset_train = ZINC(root='/', subset=True)
-    dataset_val = ZINC(root='/', subset=True, split='val')
-    dataset_test = ZINC(root='/', subset=True, split='test')
+    print("downloading the dataset (QM9)")
+    dataset_train = QM9(root='/', subset=True)
+    dataset_val = QM9(root='/', subset=True, split='val')
+    dataset_test = QM9(root='/', subset=True, split='test')
     
     print("data preprocessing: calculate and store the vector field F, etc.")
 
@@ -116,7 +120,7 @@ def main():
 
     print("create GAD model")
     
-    model = GAD(num_atom_type = 28, num_bond_type = 4, hid_dim = args.hid_dim, graph_norm = args.use_graph_norm, 
+    model = GAD(num_of_node_fts = 11, num_of_edge_fts = 4, hid_dim = args.hid_dim, atomic_emb = args.atomic_emb, graph_norm = args.use_graph_norm, 
                batch_norm = args.use_batch_norm, dropout = args.dropout, readout = args.readout, aggregators = args.aggregators,
                scalers = args.scalers, edge_fts = args.use_edge_fts, avg_d = avg_d, D = D, device = device, towers= args.towers,
                type_net = args.type_net, residual = args.use_residual, use_diffusion = args.use_diffusion, 
@@ -127,15 +131,15 @@ def main():
     
     optimizer = opt.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
-    train_ZINC(model, optimizer, train_loader, val_loader, device, num_epochs = args.num_epochs, min_lr = args.min_lr)
+    train_QM9(model, optimizer, train_loader, val_loader, prop_idx = args.prop_idx, factor = args.factor, device, num_epochs = args.num_epochs, min_lr = args.min_lr)
     
     print("Uploading the best model")
 
     model_ = torch.load('model.pth')
 
-    test_mae = evaluate_network(model_, test_loader, device)
-    val_mae = evaluate_network(model_, val_loader, device)
-    train_mae = evaluate_network(model_, train_loader, device)
+    test_mae = evaluate_network(model_, test_loader, args.prop_idx, args.factor, device)
+    val_mae = evaluate_network(model_, val_loader, args.prop_idx, args.factor, device)
+    train_mae = evaluate_network(model_, train_loader, args.prop_idx, args.factor, device)
 
     print("")
     print("Best Train MAE: {:.4f}".format(train_mae))

@@ -3,6 +3,11 @@ Here we include the scripts to generate our results on QM9 dataset, including up
 
 ***To run GAD model on QM9 properties***:
 
+```math
+SE = \frac{\sigma}{\sqrt{n}}
+```
+
+
 $`\sqrt{2}`$
 
 math:`\mu`

@@ -4,10 +4,10 @@ import torch.nn as nn
 
 from torch_scatter import scatter
 
-from src.aggregators import AGGREGATORS
-from src.mlp import MLP
-from src.scalers import SCALERS
-from src.dgn_layer import DGN_layer_Simple, DGN_Tower, DGN_layer_Tower
+from aggregators import AGGREGATORS
+from mlp import MLP
+from scalers import SCALERS
+from dgn_layer import DGN_layer_Simple, DGN_Tower, DGN_layer_Tower
 
 from src.gad_layer import GAD_layer
 

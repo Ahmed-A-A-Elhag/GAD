@@ -36,7 +36,7 @@ class GAD(nn.Module):
         elif self.type_net == 'tower':
             self.edge_dim = self.hidden_dim // towers
 
-        self.embedding_node_fts = nn.Embedding(self.num_atom_type, hid_dim)
+        self.embedding_node_fts = nn.Embedding(self.num_atom_type, self.hidden_dim)
         if self.edge_fts:
             self.embedding_edge_fts = nn.Embedding(self.num_bond_type, self.edge_dim)
         

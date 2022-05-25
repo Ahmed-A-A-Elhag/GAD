@@ -3,3 +3,4 @@ torch==1.11
 torch-scatter -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
 torch-sparse -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
 torch-geometric
+rdkit-pypi

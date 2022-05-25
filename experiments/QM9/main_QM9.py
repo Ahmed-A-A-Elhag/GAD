@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import argparse
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../src/")) 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../")) 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../src/")) 
 
 from ZINC.preprocessing import preprocessing_dataset, average_node_degree
@@ -101,10 +101,16 @@ def main():
     args = parser.parse_args()
     
     print("downloading the dataset (QM9)")
-    dataset_train = QM9(root='/', subset=True)
-    dataset_val = QM9(root='/', subset=True, split='val')
-    dataset_test = QM9(root='/', subset=True, split='test')
+    dataset = QM9(root='/')
+    dataset = dataset.shuffle()
     
+    dataset_test = dataset[:10000]
+    dataset_val = dataset[10000:20000]
+    dataset_train = dataset[20000:]
+    print("dataset_train contains ", len(dataset_train), "samples")
+    print("dataset_val contains ", len(dataset_val), "samples")
+    print("dataset_test contains ", len(dataset_test), "samples")
+
     print("data preprocessing: calculate and store the vector field F, etc.")
 
     D, avg_d = average_node_degree(dataset_train)
@@ -131,7 +137,7 @@ def main():
     
     optimizer = opt.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
-    train_QM9(model, optimizer, train_loader, val_loader, prop_idx = args.prop_idx, factor = args.factor, device, num_epochs = args.num_epochs, min_lr = args.min_lr)
+    train_QM9(model, optimizer, train_loader, val_loader, prop_idx = args.prop_idx, factor = args.factor, device=device, num_epochs = args.num_epochs, min_lr = args.min_lr)
     
     print("Uploading the best model")
 

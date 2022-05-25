@@ -101,6 +101,10 @@ def main():
     dataset_val = ZINC(root='/', subset=True, split='val')
     dataset_test = ZINC(root='/', subset=True, split='test')
     
+    print("dataset_train contains ", len(dataset_train), "samples")
+    print("dataset_val contains ", len(dataset_val), "samples")
+    print("dataset_test contains ", len(dataset_test), "samples")
+    
     print("data preprocessing: calculate and store the vector field F, etc.")
 
     D, avg_d = average_node_degree(dataset_train)

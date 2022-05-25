@@ -46,11 +46,6 @@ class GAD(nn.Module):
         self.layer_last  = nn.Linear(self.hidden_dim + self.atomic_emb, self.hidden_dim + self.atomic_emb)
         
         
-        
-        self.layer_first = nn.Linear(self.hidden_dim, self.hidden_dim)
-        self.layer_last = nn.Linear(self.hidden_dim, self.hidden_dim)
-        
-        
         self.layers = nn.ModuleList([GAD_layer(hid_dim = self.hidden_dim + self.atomic_emb, graph_norm = self.graph_norm, batch_norm = self.batch_norm, 
                                     dropout = dropout, aggregators = self.aggregators, scalers = self.scalers, edge_fts = self.edge_fts, 
                                     avg_d = self.avg_d, D = D, device= self.device, towers=towers, type_net = self.type_net, 
